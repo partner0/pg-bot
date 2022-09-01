@@ -1,0 +1,2 @@
+gcloud builds submit --tag gcr.io/<your-project-id>/pg-bot --project <your-project-id>
+gcloud run deploy pg-bot --image gcr.io/<your-project-id>/pg-bot:latest --project <your-project-id> --region <your-region>

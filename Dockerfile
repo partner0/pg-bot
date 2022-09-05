@@ -2,8 +2,10 @@ FROM python:alpine
 
 WORKDIR /pg-bot
 
+ENV PYTHONUNBUFFERED 1
+
 COPY . .
 
 RUN pip3 install -r requirements.txt
 
-CMD [ "uvicorn", "--host", "0.0.0.0", "--port", "80", "pg-bot-api:app" ]
+CMD [ "gunicorn", "pg-bot-api:app", "--bind", "0.0.0.0:80", "--worker-class", "uvicorn.workers.UvicornWorker", "--timeout", "300", "--log-level", "info" ]

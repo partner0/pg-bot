@@ -1,1 +1,1 @@
-uvicorn --port 8000 pg-bot-api:app
+gunicorn pg-bot-api:app --bind 0.0.0.0:80 --worker-class uvicorn.workers.UvicornWorker --timeout 300 --log-level debug

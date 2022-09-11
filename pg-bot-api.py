@@ -56,7 +56,7 @@ def get_results(conn_str: str, sql: str, params={}, format: format = format.PRET
 async def process_slack_command(params: dict, slack_command_params: list):
     print(str(time.ctime()) + ': Background task started: process_slack_command')
     print(params)
-    slack_headers = {"content-type": "text/plain"}
+    slack_headers = {'content-type': 'text/plain'}
     if not 'response_url'in params:
         response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
         error = errors.MISSING_ELEMENT_FROM_SLACK
@@ -75,6 +75,9 @@ async def process_slack_command(params: dict, slack_command_params: list):
             result = (get_results(reports[0]['hst_conn_str'] + ' dbname=' + reports[0]['rpt_default_db_name'], reports[0]['rpt_query'])).get_string()
         case 'list':
             result = await list(None, None)
+        case 'async_test':
+            with httpx.Client() as client:
+                result = 'Test OK'
         case default:
             with httpx.Client() as client:
                 error = errors.COMMAND_NOT_FOUND
@@ -82,9 +85,11 @@ async def process_slack_command(params: dict, slack_command_params: list):
                 response = client.post(params['response_url'], data = error, headers = slack_headers)
                 return
     print('calling: ' + params['response_url'])
-    print('data: ' + result)
+    print('headers: ' + str(slack_headers))
+    print('data: ' + '{"text": \"' + result + '\"}')
     with httpx.Client() as client:
-        response = client.post(params['response_url'], data = result, headers = slack_headers)
+        response = client.post(params['response_url'], data = '{"text": \"```' + result + '```\"}', headers = slack_headers)
+        #response = client.post(params['response_url'], data='OK', headers={'content-type': 'text/plain'})
     return
 
 @app.post("/")
@@ -127,7 +132,7 @@ async def slack_command(background_tasks: BackgroundTasks, request: Request, res
         slack_command_params = params['text'].split(' ')
     if len(slack_command_params) == 0:
         return await root(request, response)
-    elif len(slack_command_params) == 1 and slack_command_params[0] not in ['list']:
+    elif len(slack_command_params) == 1 and slack_command_params[0] not in ['list', 'async_test']:
         if not globals()[slack_command_params[0]]:
             response.status_code = status.HTTP_404_NOT_FOUND
             return errors.COMMAND_NOT_FOUND

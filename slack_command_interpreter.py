@@ -19,7 +19,7 @@ async def process_slack_command(params: dict, slack_command_params: list):
                 with httpx.Client() as client:
                     error = errors.COMMAND_NOT_FOUND
                     error.value['message'] = error.value['message'].format(slack_command_params[1])
-                    response = client.post(params['response_url'], data = str(error.value), headers = slack_headers)
+                    response = client.post(params['response_url'], data = str(error.value), headers = config['slack-headers'])
                 return
             query = reports[0]['rpt_query']
             if len(slack_command_params) == 3:

@@ -14,9 +14,12 @@ class errors(Enum):
     COMMAND_NOT_FOUND = {'code': 3, 'message': 'Command {} not found'}
 
 config = {
+    'help-file': 'help.txt',
     'pg-bot-db-conn-str': 'host=10.6.0.3 user=francois password=mHqr7ut9 dbname=pg_bot',
+    'get-conn-str-query': 'select hst_conn_str from hst_host where hst_id = @@host_id@@',
     'commands': {
-        'list': 'select rpt_name as name, left(rpt_description, 100) as description from rpt_report join hst_host on rpt_hst_id__default_report_host = hst_id',
+        'list-reports': 'select rpt_name as name, left(rpt_description, 100) as description, hst_name, rpt_default_db_name, rpt_default_report_params from rpt_report join hst_host on rpt_hst_id__default_report_host = hst_id',
+        'list-hosts': 'select hst_id, hst_name as name, left(hst_description, 100) as description from hst_host',
         'fetch': 'select * from rpt_report join hst_host on rpt_hst_id__default_report_host = hst_id where rpt_name = \'@@report_name@@\''
     }
 }

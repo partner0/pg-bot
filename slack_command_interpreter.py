@@ -12,7 +12,6 @@ async def process_slack_command(params: dict, slack_command_params: list):
     print(str(time.ctime()) + ': Background task started: process_slack_command')
     print(params)
     print(slack_command_params)
-    slack_headers = {'content-type': 'text/plain'}
     match slack_command_params[0]:
         case 'fetch':
             reports = get_results(config['pg-bot-db-conn-str'], config['commands']['fetch'].replace('@@report_name@@', slack_command_params[1]), format=format.DICT)
@@ -52,9 +51,9 @@ async def process_slack_command(params: dict, slack_command_params: list):
             with httpx.Client() as client:
                 error = errors.COMMAND_NOT_FOUND
                 error.value['message'] = error.value['message'].format(slack_command_params[0])
-                response = client.post(params['response_url'], data =  str(error.value), headers = slack_headers)
+                response = client.post(params['response_url'], data =  str(error.value), headers = config['slack-headers'])
                 return
     with httpx.Client() as client:
         print(result)
-        response = client.post(params['response_url'], data = '{"text": \"```' + result + '```\"}', headers = slack_headers)
+        response = client.post(params['response_url'], data = '{"text": \"```' + result + '```\"}', headers = config['slack-headers'])
     return

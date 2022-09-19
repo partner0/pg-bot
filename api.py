@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Request, Response, status, BackgroundTasks
+from fastapi.responses import PlainTextResponse
 from common_types_and_consts import *
 from data_access_layer import get_results
 from slack_command_interpreter import process_slack_command
@@ -7,13 +8,13 @@ import re
 
 app = FastAPI()
 
-@app.post("/")
-@app.get("/")
+@app.post("/", response_class=PlainTextResponse)
+@app.get("/", response_class=PlainTextResponse)
 async def root(request: Request, response: Response):
     return VERSION_MESSAGE
 
-@app.post("/echo")
-@app.get("/echo")
+@app.post("/echo", response_class=PlainTextResponse)
+@app.get("/echo", response_class=PlainTextResponse)
 async def echo(request: Request, response: Response):
     body = await request.body()
     return {
@@ -24,16 +25,16 @@ async def echo(request: Request, response: Response):
             "client-addr": str(request.client)
         }
 
-@app.post("/help")
-@app.get("/help")
+@app.post("/help", response_class=PlainTextResponse)
+@app.get("/help", response_class=PlainTextResponse)
 async def help(request: Request, response: Response):
     with open(config['help-file']) as help_file:
         help_content = help_file.read()
         help_file.close()
     return '```' + help_content + '```'
 
-@app.post("/list/{type}")
-@app.get("/list/{type}")
+@app.post("/list/{type}", response_class=PlainTextResponse)
+@app.get("/list/{type}", response_class=PlainTextResponse)
 async def list(type: str, request: Request, response: Response):
     match type:
         case 'reports':
@@ -45,14 +46,14 @@ async def list(type: str, request: Request, response: Response):
             result = errors.COMMAND_NOT_FOUND
     return result
 
-@app.post("/fetch/{report_name}")
-@app.get("/fetch/{report_name}")
+@app.post("/fetch/{report_name}", response_class=PlainTextResponse)
+@app.get("/fetch/{report_name}", response_class=PlainTextResponse)
 async def fetch(report_name: str, request: Request, response: Response):
     report = (get_results(config['pg-bot-db-conn-str'], config['commands']['fetch'].replace('@@report_name@@', report_name), format=format.DICT))[0]
     return (get_results(report['hst_conn_str'] + ' dbname=' + report['rpt_default_db_name'], report['rpt_query'])).get_string()
 
-@app.post("/slack_command")
-@app.get("/slack_command")
+@app.post("/slack_command", response_class=PlainTextResponse)
+@app.get("/slack_command", response_class=PlainTextResponse)
 async def slack_command(background_tasks: BackgroundTasks, request: Request, response: Response):
     body = await request.body()
     params = parse.parse_qs(body)

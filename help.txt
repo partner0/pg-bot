@@ -18,5 +18,5 @@ fetch [report_name config|None]
 
 	eg: 
 	/pg-bot fetch dora-stats
-	/pg_bot fetch dora-stats {"report-params": {"start": "now() - interval '30 days', "end":"now()"}}
-	/pg_bot fetch dora-stats {"report-params": {"start": "now() - interval '30 days', "end":"now()"}}, "host-id": 2, "db-name":"concourse"}
+	/pg-bot fetch dora-stats {"report-params": {"from": "now() - interval '30 days'", "to":"now()"}}
+	/pg-bot fetch dora-stats {"report-params": {"from": "now() - interval '30 days'", "to":"now()"}, "host-id": 2, "db-name":"concourse"}

@@ -5,6 +5,7 @@ import httpx
 import json
 from api import *
 import time
+from logger import *
 
 async def process_slack_command(params: dict, slack_command_params: list):
     call_time = str(time.ctime())
@@ -43,7 +44,7 @@ async def process_slack_command(params: dict, slack_command_params: list):
                 host_conn_str = reports[0]['hst_conn_str']
             for key in report_params:
                 query = query.replace('@@' + key + '@@', report_params[key])
-            result = (get_results(host_conn_str + ' dbname=' + db_name, query)).get_string()
+            result = (get_results(host_conn_str + ' dbname=' + db_name, query))
         case 'async_test':
             result = 'Test OK'
         case default:
@@ -53,12 +54,8 @@ async def process_slack_command(params: dict, slack_command_params: list):
                 response = client.post(params['response_url'], data =  str(error.value), headers = config['slack-headers'])
                 return
     with httpx.Client() as client:
-        print(result)
-        response = client.post(params['response_url'], data = '{"text": \"```' + result + '```\"}', headers = config['slack-headers'])
-    get_results(config['pg-bot-db-conn-str'], config['insert-log'].replace('@@command_called_at@@', call_time)\
-        .replace('@@command_finished_at@@', str(time.ctime()))\
-        .replace('@@slack_handle@@', params['user_name'])\
-        .replace('@@command@@', params['command'] + ' ' + params['text'])\
-        .replace('@@host_id@@', str(host_id))\
-        .replace('@@result@@', result), format.DICT)
+        print(result.get_string())
+        response = client.post(params['response_url'], data = '{"text": \"```' + result.get_string() + '```\"}', headers = config['slack-headers'])
+        event = Event(call_time, str(time.ctime()), params['user_name'], params['command'] + ' ' + params['text'], host_id, result.get_json_string())
+        Logger.log_event(event)
     return

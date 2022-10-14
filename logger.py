@@ -7,8 +7,16 @@ class Event:
     command_finished_at: str
     slack_handle: str
     command: str
+    host_id: int
     result: str
 
+    def __init__(self, command_called_at: str, command_finished_at: str, slack_handle: str, command: str, host_id: int, result: str):
+        self.command_called_at = command_called_at
+        self.command_finished_at = command_finished_at
+        self.slack_handle = slack_handle
+        self.command = command
+        self.host_id = host_id
+        self.result = result
 class Logger:
     def __new__(cls, *args, **kwargs):
         if cls is Logger:
@@ -18,8 +26,9 @@ class Logger:
     @staticmethod
     def log_event(event: Event):
         query = config['insert-log'].replace('@@command_called_at@@', event.command_called_at)\
-            .replace('@@command_finished_at@@', event.command_finished_at)\
-            .replace('@@command@@', event.command)\
-            .replace('@@slack_handle@@', event.slack_handle)\
-            .replace('@@result@@', event.result)
-        get_results(config['pg-bot-db-conn-str'], query)
+        .replace('@@command_finished_at@@', event.command_finished_at)\
+        .replace('@@slack_handle@@', event.slack_handle)\
+        .replace('@@command@@', event.command)\
+        .replace('@@host_id@@', str(event.host_id))\
+        .replace('@@result@@', event.result)
+        return get_results(config['pg-bot-db-conn-str'], query, format.DICT)

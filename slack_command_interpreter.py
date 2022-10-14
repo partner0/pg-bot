@@ -30,7 +30,7 @@ async def process_slack_command(params: dict, slack_command_params: list):
                 report_params = report_config['report-params']
             else:
                 report_params = json.loads(reports[0]['rpt_default_report_params'])
-            if 'hist-id' in report_config:
+            if 'host-id' in report_config:
                 host_id = report_config['host-id']
             else:
                 host_id = None
@@ -39,7 +39,7 @@ async def process_slack_command(params: dict, slack_command_params: list):
             else:
                 db_name = reports[0]['rpt_default_db_name']
             if host_id:
-                host_conn_str = get_results(config['pg-bot-db-conn-str'], config['get-conn-str-query'].replace('@@host_id@@', str(host_id)), format=format.DICT)['hst_conn_str']
+                host_conn_str = get_results(config['pg-bot-db-conn-str'], config['get-conn-str-query'].replace('@@host_id@@', str(host_id)), format=format.DICT)[0]['hst_conn_str']
             else:
                 host_conn_str = reports[0]['hst_conn_str']
             for key in report_params:
@@ -56,4 +56,5 @@ async def process_slack_command(params: dict, slack_command_params: list):
     with httpx.Client() as client:
         print(result)
         response = client.post(params['response_url'], data = '{"text": \"```' + result + '```\"}', headers = config['slack-headers'])
+    
     return

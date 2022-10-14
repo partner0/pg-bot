@@ -19,5 +19,6 @@ def get_results(conn_str: str, sql: str, params={}, format: format = format.PRET
             result = [dict(zip(columns, row)) for row in rows]
         case default:
             result = None
+    conn.commit()
     conn.close()
     return result

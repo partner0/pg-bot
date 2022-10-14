@@ -4,12 +4,11 @@ from data_access_layer import get_results
 import httpx
 import json
 from api import *
-
-#remove
 import time
 
 async def process_slack_command(params: dict, slack_command_params: list):
-    print(str(time.ctime()) + ': Background task started: process_slack_command')
+    call_time = str(time.ctime())
+    print(call_time + ': Background task started: process_slack_command')
     print(params)
     print(slack_command_params)
     match slack_command_params[0]:
@@ -56,5 +55,10 @@ async def process_slack_command(params: dict, slack_command_params: list):
     with httpx.Client() as client:
         print(result)
         response = client.post(params['response_url'], data = '{"text": \"```' + result + '```\"}', headers = config['slack-headers'])
-    
+    get_results(config['pg-bot-db-conn-str'], config['insert-log'].replace('@@command_called_at@@', call_time)\
+        .replace('@@command_finished_at@@', str(time.ctime()))\
+        .replace('@@slack_handle@@', params['user_name'])\
+        .replace('@@command@@', params['command'] + ' ' + params['text'])\
+        .replace('@@host_id@@', str(host_id))\
+        .replace('@@result@@', result), format.DICT)
     return

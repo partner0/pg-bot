@@ -17,7 +17,8 @@ config = {
     'help-file': 'help.txt',
     'pg-bot-db-conn-str': 'host=10.6.0.3 user=francois password=mHqr7ut9 dbname=pg_bot',
     'get-conn-str-query': 'select hst_conn_str from hst_host where hst_id = @@host_id@@',
-    'insert-log': 'insert into clg_call_log values (\'@@command_called_at@@\'::timestamp, \'@@command_finished_at@@\'::timestamp, \'@@slack_handle@@\', \'@@command@@\', \'@@result@@\')',
+    'insert-log': 'insert into clg_call_log (clg_report_called_at, clg_report_finished_at, clg_slack_handle, clg_command, clg_rpt_id__report_called, clg_result)\
+    values (\'@@command_called_at@@\'::timestamp, \'@@command_finished_at@@\'::timestamp, \'@@slack_handle@@\', \'@@command@@\', @@host_id@@, \'@@result@@\')',
     'slack-headers': {'content-type': 'text/plain'},
     'commands': {
         'list-reports': 'select rpt_name as name, left(rpt_description, 100) as description, hst_name as default_host, rpt_default_db_name as default_db, rpt_default_report_params as default_params from rpt_report join hst_host on rpt_hst_id__default_report_host = hst_id',

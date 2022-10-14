@@ -22,6 +22,7 @@ async def process_slack_command(params: dict, slack_command_params: list):
                     response = client.post(params['response_url'], data = str(error.value), headers = config['slack-headers'])
                 return
             query = reports[0]['rpt_query']
+            default_host_id = reports[0]['rpt_hst_id__default_report_host']
             if len(slack_command_params) == 3:
                 report_config = json.loads(slack_command_params[2])
             else:
@@ -33,7 +34,7 @@ async def process_slack_command(params: dict, slack_command_params: list):
             if 'host-id' in report_config:
                 host_id = report_config['host-id']
             else:
-                host_id = None
+                host_id = default_host_id
             if 'db-name' in report_config:
                 db_name = report_config['db-name']
             else:
@@ -56,6 +57,6 @@ async def process_slack_command(params: dict, slack_command_params: list):
     with httpx.Client() as client:
         print(result.get_string())
         response = client.post(params['response_url'], data = '{"text": \"```' + result.get_string() + '```\"}', headers = config['slack-headers'])
-        event = Event(call_time, str(time.ctime()), params['user_name'], params['command'] + ' ' + params['text'], host_id, result.get_json_string())
+        event = Event(call_time, str(time.ctime()), params['user_name'], params['command'] + ' ' + params['text'], host_id, result.get_json_string(default=str))
         Logger.log_event(event)
     return

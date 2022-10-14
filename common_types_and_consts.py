@@ -1,6 +1,6 @@
 from enum import Enum
 
-VERSION_MESSAGE = 'pg-bot API v1.0.1'
+VERSION_MESSAGE = 'pg-bot API v1.1.1'
 ACK_MESSAGE = 'Thank you for your request; I am processing your payload. I will post the results here as soon as they are ready.'
 REGEX_URL = '^https?:\\/\\/(?:www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b(?:[-a-zA-Z0-9()@:%_\\+.~#?&\\/=]*)$'
 

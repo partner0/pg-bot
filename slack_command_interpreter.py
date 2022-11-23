@@ -55,6 +55,8 @@ async def process_slack_command(params: dict, slack_command_params: list):
                 response = client.post(params['response_url'], data =  str(error.value), headers = config['slack-headers'])
                 return
     with httpx.Client() as client:
+        print(host_conn_str + ' dbname=' + db_name)
+        print(query)
         print(result.get_string())
         response = client.post(params['response_url'], data = '{"text": \"```' + result.get_string() + '```\"}', headers = config['slack-headers'])
         event = Event(call_time, str(time.ctime()), params['user_name'], params['command'] + ' ' + params['text'], host_id, result.get_json_string(default=str))

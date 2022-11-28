@@ -1,7 +1,19 @@
 from enum import Enum
+from fastapi.responses import JSONResponse
 
-VERSION_MESSAGE = 'pg-bot API v1.1.1'
-ACK_MESSAGE = 'Thank you for your request; I am processing your payload. I will post the results here as soon as they are ready.'
+class SlackJSONResponse(JSONResponse):
+    def __init__(self, response_text:str = "", response_type:str = "ephemeral", attachments:list = None, is_code_block = True, *args, **kwargs):
+        if is_code_block:
+            response_text = '```' + response_text + '```'
+        slack_json = {
+            "text": response_text,
+            "response_type": response_type,
+            "attachments": attachments
+        }
+        super().__init__(content = slack_json, headers = config['slack-headers'], *args, **kwargs)
+
+VERSION_MESSAGE = "pg-bot API v1.2.0"
+ACK_MESSAGE = "Thank you for your request; I am processing your payload. I will post the results here as soon as they are ready."
 REGEX_URL = '^https?:\\/\\/(?:www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b(?:[-a-zA-Z0-9()@:%_\\+.~#?&\\/=]*)$'
 
 class format(Enum):
@@ -19,7 +31,7 @@ config = {
     'get-conn-str-query': 'select hst_conn_str from hst_host where hst_id = @@host_id@@',
     'insert-log': 'insert into clg_call_log (clg_report_called_at, clg_report_finished_at, clg_slack_handle, clg_command, clg_rpt_id__report_called, clg_result)\
     values (\'@@command_called_at@@\'::timestamp, \'@@command_finished_at@@\'::timestamp, \'@@slack_handle@@\', \'@@command@@\', @@host_id@@, \'@@result@@\')',
-    'slack-headers': {'content-type': 'text/plain'},
+    'slack-headers': {'content-type': 'application/json'},
     'commands': {
         'list-reports': 'select rpt_name as name, left(rpt_description, 100) as description, hst_name as default_host, rpt_default_db_name as default_db, rpt_default_report_params as default_params from rpt_report join hst_host on rpt_hst_id__default_report_host = hst_id',
         'list-hosts': 'select hst_id as id, hst_name as name, left(hst_description, 100) as description from hst_host',

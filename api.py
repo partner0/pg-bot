@@ -9,9 +9,9 @@ import re, json
 app = FastAPI()
 
 @app.exception_handler(Exception)
-async def validation_exception_handler(request, err):
+async def validation_exception_handler(request: Request, error: Exception):
     base_error_message = f"Failed to execute: {request.method}: {request.url}"
-    return SlackJSONResponse(response_text = f"{base_error_message}\ndetails: {err}")
+    return SlackJSONResponse(response_text = f'{base_error_message}\nDetails: {error}\nType \"pg-bot help"')
 
 @app.post("/", response_class = JSONResponse)
 @app.get("/", response_class = JSONResponse)
@@ -26,16 +26,16 @@ async def echo(request: Request, response: Response):
         response_body = json.loads(request_body)
     except:
         response_body = request_body.decode("utf-8")
-    response_body = {
+    result = {
             "method": str(request.method),
             "url": str(request.url),
             "headers": str(request.headers),
             "body": response_body,
             "client-addr": str(request.client)
         }
-    response_body = json.dumps(response_body, indent = 4)
-    print(response_body)
-    return SlackJSONResponse(response_body)
+    result = json.dumps(result, indent = 4)
+    print(result)
+    return SlackJSONResponse(result)
 
 @app.post("/help", response_class = JSONResponse)
 @app.get("/help", response_class = JSONResponse)

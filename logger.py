@@ -25,10 +25,13 @@ class Logger:
 
     @staticmethod
     def log_event(event: Event):
+        host_id_sql = 'null'
+        if event.host_id:
+            host_id_sql = str(event.host_id)
         query = config['insert-log'].replace('@@command_called_at@@', event.command_called_at)\
         .replace('@@command_finished_at@@', event.command_finished_at)\
         .replace('@@slack_handle@@', event.slack_handle)\
         .replace('@@command@@', event.command)\
-        .replace('@@host_id@@', str(event.host_id))\
-        .replace('@@result@@', event.result)
+        .replace('@@host_id@@', host_id_sql)\
+        .replace('@@result@@', event.result.replace("'", "''"))
         return get_results(config['pg-bot-db-conn-str'], query, format.DICT)
